@@ -1,0 +1,333 @@
+SELECT c.CompanyName, COUNT(o.OrderID) AS NumOrders,
+	ISNULL(
+		CONVERT(
+			VARCHAR(20),
+			MIN(o.OrderDate),
+			106),
+			'None placed') AS MinDate
+	FROM dbo.Customers AS c
+	LEFT JOIN dbo.Orders AS o
+	ON o.CustomerID = c.CustomerID
+	WHERE YEAR(o.OrderDate) = 1996
+	GROUP BY c.CompanyName
+	ORDER BY NumOrders
+-
+SELECT c.CompanyName, COUNT(o.OrderID) AS NumOrders, ISNULL(MIN(o.OrderDate), 'None placed') AS MinDate
+FROM dbo.Customers AS c
+LEFT JOIN dbo.Orders AS o
+ON o.CustomerID = c.CustomerID
+WHERE YEAR(o.OrderDate) = 1996
+GROUP BY c.CompanyName
+ORDER BY NumOrders
+-
+SELECT c.CompanyName, COUNT(o.OrderID) AS NumOrders, MIN(o.OrderDate) AS MinDate
+FROM dbo.Customers AS c
+LEFT JOIN dbo.Orders as o
+ON o.CustomerID = c.CustomerID
+WHERE YEAR(o.OrderDate) = 1996
+GROUP BY c.CompanyName
+ORDER BY NumOrders
+-
+SELECT CompanyName, LEFT(ContactName, CHARINDEX(' ', ContactName)) AS FirstName, SUBSTRING(ContactName, CHARINDEX(' ', ContactName) + 1, 50) AS LastName, Phone
+FROM dbo.Customers
+UNION ALL
+SELECT CompanyName, LEFT(ContactName, CHARINDEX(' ', ContactName)) AS FirstName, SUBSTRING(ContactName, CHARINDEX(' ', ContactName) + 1, 50) AS LastName, Phone
+FROM dbo.Suppliers
+UNION ALL
+SELECT 'Northwind Traders', FirstName, LastName, Extension
+FROM dbo.Employees
+ORDER BY LastName
+-
+SELECT CompanyName, CHARINDEX(' ', ContactName), ContactName, Phone
+FROM dbo.Customers
+-
+EXEC dbo.SalesByCategory
+	@OrdYear = 1997, @CategoryName = 'Seafood'
+-
+EXEC dbo.CustOrderHist 'ALFKI'
+-
+USE Northwind
+SELECT * FROM dbo.ContactDirectory
+WHERE ContactName LIKE 'A%'
+-
+CREATE VIEW dbo.ContactDirectory
+AS
+
+SELECT CompanyName, ContactName, Phone
+FROM dbo.Customers
+UNION ALL
+SELECT CompanyName, ContactName, Phone
+FROM dbo.Suppliers
+UNION ALL
+SELECT 'Northwind Traders', FirstName + ' ' + LastName, Extension
+FROM dbo.Employees
+-
+SELECT * FROM dbo.Invoices
+WHERE Country = 'UK'
+-
+USE Northwind;
+
+SELECT
+	o.ShipName, 
+	o.ShipAddress, 
+	o.ShipCity, 
+	o.ShipRegion, 
+	o.ShipPostalCode, 
+	o.ShipCountry, 
+	o.CustomerID, 
+	c.CompanyName AS CustomerName, 
+	c.Address, 
+	c.City,
+	c.Region, 
+	c.PostalCode, 
+	c.Country, 
+	e.FirstName + ' ' + e.LastName AS Salesperson,
+	o.OrderID, 
+	o.OrderDate, 
+	o.RequiredDate, 
+	o.ShippedDate,
+	s.CompanyName AS ShipperName,
+	od.ProductID, 
+	p.ProductName, 
+	od.UnitPrice, 
+	od.Quantity, 
+	od.Discount, 
+	((od.UnitPrice * od.Quantity) * (1 - od.Discount) / 100) * 100 AS ExtendedPrice,
+    o.Freight
+FROM
+	Orders AS o
+INNER JOIN
+	Customers AS c
+ON
+	c.CustomerID = o.CustomerID
+INNER JOIN
+	Employees AS e 
+ON
+	e.EmployeeID = o.EmployeeID
+INNER JOIN
+	Shippers AS s
+ON 
+	s.ShipperID = o.ShipVia
+INNER JOIN
+	[Order Details] AS od
+ON
+	o.OrderID = od.OrderID
+INNER JOIN
+	Products AS p
+ON
+	p.ProductID = od.ProductID
+WHERE c.Country = 'UK'
+-
+SELECT CompanyName, ContactName, Phone
+FROM dbo.Customers
+
+UNION ALL
+
+SELECT CompanyName, ContactName, Phone
+FROM dbo.Suppliers
+
+UNION ALL
+
+SELECT 'Northwind Traders', FirstName + ' ' + LastName, Extension
+FROM dbo.Employees
+-
+SELECT c.CompanyName, COUNT(o.OrderID) AS NumOrders, MIN(o.OrderDate) AS MinDate
+FROM dbo.Orders AS o
+RIGHT OUTER JOIN dbo.Customers AS c
+ON o.CustomerID = c.CustomerID
+GROUP BY c.CompanyName
+ORDER BY NumOrders
+-
+SELECT c.CompanyName, COUNT(o.OrderID) AS NumOrders
+FROM dbo.Customers AS c
+JOIN dbo.Orders AS o
+ON o.CustomerID = c.CustomerID
+GROUP BY c.CompanyName
+ORDER BY NumOrders
+-
+SELECT c.CustomerID, c.CompanyName, c.ContactName, o.OrderID, o.OrderDate, od.ProductID, p.ProductName, od.Quantity
+FROM dbo.Customers AS c
+JOIN dbo.orders as o
+ON c.CustomerID = o.CustomerID
+JOIN dbo.[Order Details] AS od
+ON o.OrderID = od.OrderID
+JOIN dbo.Products AS p
+ON od.ProductID = p.ProductID
+WHERE c.Country = 'UK'
+ORDER BY c.CompanyName, o.OrderDate
+-
+SELECT c.CustomerID, c.CompanyName, c.ContactName, c.City, o.OrderID, o.OrderDate
+FROM dbo.Customers AS c
+JOIN dbo.orders AS o
+ON c.CustomerID = o.CustomerID;
+-
+USE Northwind
+
+SELECT COUNT(OrderID) AS NumberofOrders
+FROM dbo.Orders
+GROUP BY CustomerID
+ORDER BY NumberOfOrders DESC
+-
+USE Northwind
+
+SELECT COUNT(OrderID) AS NumberofOrders
+FROM dbo.Orders
+GROUP BY CustomerID
+-
+USE Northwind
+
+SELECT COUNT(OrderID) AS NumberofOrders
+FROM dbo.Orders
+-
+SELECT COUNT(*) as NumberOfOrders,
+	MIN(OrderDate) as EarliestOrder, MAX(OrderDate) as LatestOrder
+FROM dbo.Orders
+WHERE EmployeeID = 1
+-
+SELECT
+	COUNT(*) as NumberOfOrders,
+	MIN(OrderDate) as EarliestOrder,
+	MAX(OrderDate) as LatestOrder
+FROM dbo.Orders
+-
+USE Northwind
+
+SELECT COUNT(*) as NumberOfOrders
+FROM dbo.Orders
+-
+USE Northwind
+
+SELECT TOP 10
+	ProductID, ProductName, UnitPrice
+FROM
+	dbo.Products
+ORDER BY
+	UnitPrice DESC
+-
+USE Northwind
+
+SELECT DISTINCT
+	Country
+FROM
+	dbo.Customers
+-
+USE Northwind
+
+SELECT
+	Country
+FROM
+	dbo.Customers
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, UnitPrice, UnitsInStock, UnitsOnOrder, UnitPrice * UnitsInStock AS CurrentStockValue, (UnitsInStock + UnitsOnOrder) * UnitPrice AS FutureStockValue
+	FROM dbo.Products
+ORDER BY
+	FutureStockValue DESC
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, UnitPrice, UnitsInStock, UnitsOnOrder, UnitPrice * UnitsInStock AS CurrentStockValue, (UnitsInStock + UnitsOnOrder) * UnitPrice AS FutureStockValue
+	FROM dbo.Products
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM
+	dbo.Products
+WHERE
+	Discontinued = 0
+ORDER BY
+	CategoryID,
+	UnitPrice DESC
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM
+	dbo.Products
+WHERE
+	Discontinued = 0
+ORDER BY
+	CategoryID
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM
+	dbo.Products
+WHERE
+	Discontinued = 0
+-
+USE Northwind
+
+SELECT
+	OrderID, CustomerID, OrderDate
+FROM
+	dbo.Orders
+WHERE
+	CustomerID IN ('ALFKI', 'ERNSH', 'SIMOB')
+AND
+	OrderDate BETWEEN '1 Aug 1997' AND '31 Aug 1997'
+-
+USE Northwind
+
+SELECT
+	OrderID, CustomerID, OrderDate
+FROM
+	dbo.Orders
+WHERE
+	(CustomerID = 'ALFKI' OR CustomerID = 'ERNSH' OR CustomerID = 'SIMOB')
+AND
+	(OrderDate >= '1 Aug 1997' AND OrderDate <= '31 Aug 1997')
+-
+USE Northwind
+
+SELECT
+	OrderID, CustomerID, OrderDate
+FROM
+	dbo.Orders
+WHERE
+	CustomerID = 'ALFKI' OR CustomerID = 'ERNSH' OR CustomerID = 'SIMOB'
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM
+	dbo.Products
+WHERE
+	Discontinued = 0 AND CategoryID = 1 AND UnitPrice >= 40
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM
+	dbo.Products
+WHERE
+	Discontinued = 0 AND CategoryID = 1
+-
+USE Northwind
+
+SELECT
+	ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM
+	dbo.Products
+WHERE
+	Discontinued = 0
+-
+USE Northwind
+
+SELECT ProductID, ProductName, UnitPrice, UnitsInStock
+FROM dbo.Products;
+
+
+
+
+
