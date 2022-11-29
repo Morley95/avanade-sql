@@ -1,0 +1,183 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}{\f2\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green0\blue255;\red0\green0\blue0;\red128\green128\blue128;\red255\green0\blue255;\red255\green0\blue0;\red0\green128\blue0;}
+{\*\generator Riched20 10.0.14393}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\cf1\f0\fs19\lang9 USE\cf2  QATSQLPLUS\par
+\cf1 SELECT\cf2  V\cf3 .\cf2 VendorName\cf3 ,\cf2  C\cf3 .\cf2 CourseName\cf3 ,\cf2  C\cf3 .\cf2 CourseID\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 Vendor \cf1 AS\cf2  V\par
+\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 Course \cf1 AS\cf2  C\par
+\cf1 ON\cf2  V\cf3 .\cf2 VendorID \cf3 =\cf2  C\cf3 .\cf2 VendorID\par
+\f1\lang2057 -\par
+\cf1\f0 CREATE\cf2  \cf1 VIEW\cf2  dbo\cf3 .\cf2 CourseLIst \cf1 AS\cf2\par
+\tab\cf1 SELECT\cf2  V\cf3 .\cf2 VendorName\cf3 ,\cf2  C\cf3 .\cf2 CourseName\cf3 ,\cf2  C\cf3 .\cf2 CourseID\par
+\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Vendor \cf1 AS\cf2  V\par
+\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 Course \cf1 AS\cf2  C\par
+\tab\cf1 ON\cf2  V\cf3 .\cf2 VendorID \cf3 =\cf2  C\cf3 .\cf2 VendorID\par
+\cf1 GO\cf2\par
+\cf1 SELECT\cf2  \cf3 *\cf2  \cf1 FROM\cf2  dbo\cf3 .\cf2 CourseList\par
+\f1 -\par
+\cf1\f0 SELECT\cf2  D\cf3 .\cf2 DelegateID\cf3 ,\cf2  \cf4 SUM\cf3 (\cf2 CR\cf3 .\cf2 DURATIONDAYS\cf3 )\cf2  \cf1 AS\cf2  DelegateDays\cf3 ,\cf2  \cf4 COUNT\cf3 (*)\cf2  \cf1 AS\cf2  DelegateCourses\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 Delegate \cf1 AS\cf2  D\par
+\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 DelegateAttendance \cf1 AS\cf2  DA\par
+\cf1 ON\cf2  D\cf3 .\cf2 DelegateID \cf3 =\cf2  DA\cf3 .\cf2 DelegateID\par
+\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\cf1 ON\cf2  CR\cf3 .\cf2 CourseRunID \cf3 =\cf2  DA\cf3 .\cf2 CourseRunID\par
+\cf1 GROUP\cf2  \cf1 BY\cf2  D\cf3 .\cf2 DelegateID\par
+\f1 -\par
+\cf1\f0 CREATE\cf2  \cf1 FUNCTION\cf2  udf_DelegateDays\cf3 ()\cf2\par
+\cf1 RETURNS\cf2  \cf1 TABLE\cf2\par
+\cf1 AS\cf2\par
+\cf1 RETURN \cf3 (\cf2\par
+\tab\cf1 SELECT\cf2  D\cf3 .\cf2 DelegateID\cf3 ,\cf2  \cf4 SUM\cf3 (\cf2 CR\cf3 .\cf2 DurationDays\cf3 )\cf2  \cf1 AS\cf2  DelegateDays\cf3 ,\cf2  \cf4 COUNT\cf3 (*)\cf2  \cf1 AS\cf2  DelegateCourses\par
+\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Delegate \cf1 AS\cf2  D\par
+\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 DelegateAttendance \cf1 AS\cf2  DA\par
+\tab\tab\tab\cf1 ON\cf2  D\cf3 .\cf2 DelegateID \cf3 =\cf2  DA\cf3 .\cf2 DelegateID\par
+\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\tab\tab\tab\cf1 ON\cf2  CR\cf3 .\cf2 CourseRunID \cf3 =\cf2  DA\cf3 .\cf2 CourseRunID\par
+\tab\cf1 GROUP\cf2  \cf1 BY\cf2  D\cf3 .\cf2 DelegateID\par
+\tab\cf3 )\cf2\par
+\cf1 GO\cf2\par
+\cf1 SELECT\cf2  \cf3 *\cf2  \cf1 FROM\cf2  dbo\cf3 .\cf2 udf_DelegateDays\cf3 ()\par
+\f1 -\par
+\cf1\f0 CREATE\cf2  \cf1 FUNCTION\cf2  dbo\cf3 .\cf2 udf_IndividualDelegateDays\cf3 (\cf2 @DelegateID \cf1 INT\cf3 )\cf2\par
+\tab\cf1 RETURNS\cf2  \cf1 TABLE\cf2\par
+\tab\cf1 AS\cf2\par
+\tab\cf1 RETURN\cf3 (\cf2\par
+\tab\tab\cf1 SELECT\cf2  @DelegateID \cf1 AS\cf2  DelegateID\cf3 ,\cf2  \cf4 SUM\cf3 (\cf2 CR\cf3 .\cf2 DurationDays\cf3 )\cf2  \cf1 AS\cf2  DelegateDays\cf3 ,\cf2  \cf4 COUNT\cf3 (*)\cf2  \cf1 AS\cf2  DelegateCourses\par
+\tab\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Delegate \cf1 AS\cf2  D\par
+\tab\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 DelegateAttendance \cf1 AS\cf2  DA\par
+\tab\tab\tab\tab\cf1 ON\cf2  D\cf3 .\cf2 DelegateID \cf3 =\cf2  DA\cf3 .\cf2 DelegateID\par
+\tab\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\tab\tab\tab\tab\cf1 ON\cf2  CR\cf3 .\cf2 CourseRunID \cf3 =\cf2  DA\cf3 .\cf2 CourseRunID\par
+\tab\tab\cf1 WHERE\cf2  D\cf3 .\cf2 DelegateID \cf3 =\cf2  @DelegateID\par
+\tab\cf3 )\cf2\par
+\cf1 GO\cf2  \par
+\cf1 SELECT\cf2  \cf3 *\cf2  \cf1 FROM\cf2  dbo\cf3 .\cf2 udf_IndividualDelegateDays\cf3 (\cf2 1\cf3 )\par
+\f1 -\par
+\cf1\f0 SELECT\cf2  CourseRunID\cf3 ,\cf2  StartDate\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 Trainer \cf1 AS\cf2  T\par
+\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\cf1 ON\cf2  T\cf3 .\cf2 TrainerID \cf3 =\cf2  CR\cf3 .\cf2 TrainerID\par
+\cf1 WHERE\cf2  TrainerName \cf3 =\cf2  \cf5 'Jason Bourne'\par
+\f1 -\par
+\cf1\f0 SELECT\cf2  D\cf3 .\cf2 DelegateID\cf3 ,\cf2  D\cf3 .\cf2 DelegateName\cf3 ,\cf2  D\cf3 .\cf2 CompanyName\cf3 ,\cf2  JB\cf3 .\cf2 StartDate\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 Delegate \cf1 AS\cf2  D\par
+\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 DelegateAttendance \cf1 AS\cf2  DA\par
+\tab\cf1 ON\cf2  D\cf3 .\cf2 DelegateID \cf3 =\cf2  DA\cf3 .\cf2 DelegateID\par
+\tab\cf3 INNER\cf2  \cf3 JOIN(\cf2\par
+\tab\tab\cf1 SELECT\cf2  CourseRunID\cf3 ,\cf2  StartDate\par
+\tab\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Trainer \cf1 AS\cf2  T\par
+\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\tab\tab\tab\cf1 ON\cf2  T\cf3 .\cf2 TrainerID \cf3 =\cf2  CR\cf3 .\cf2 TrainerID\par
+\tab\tab\tab\cf1 WHERE\cf2  TrainerName \cf3 =\cf2  \cf5 'Jason Bourne'\cf2\par
+\tab\cf3 )\cf2  \cf1 AS\cf2  JB\par
+\tab\cf1 ON\cf2  DA\cf3 .\cf2 CourseRunID \cf3 =\cf2  JB\cf3 .\cf2 CourseRunID\par
+\f1 -\par
+\cf1\f0 SELECT\cf2  CourseRunID\cf3 ,\cf2  StartDate\par
+\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Trainer \cf1 AS\cf2  T\par
+\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\tab\cf1 ON\cf2  T\cf3 .\cf2 TrainerID \cf3 =\cf2  CR\cf3 .\cf2 TrainerID\par
+\tab\cf1 WHERE\cf2  TrainerName \cf3 =\cf2  \cf5 'Jason Bourne'\par
+\f1 -\par
+\cf1\f0 WITH\cf2  BourneCourses \cf1 AS \cf3 (\cf2\par
+\tab\cf1 SELECT\cf2  CourseRunID\cf3 ,\cf2  StartDate\par
+\tab\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Trainer \cf1 AS\cf2  T\par
+\tab\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\tab\tab\tab\tab\cf1 ON\cf2  T\cf3 .\cf2 TrainerID \cf3 =\cf2  CR\cf3 .\cf2 TrainerID\par
+\tab\tab\tab\cf1 WHERE\cf2  TrainerName \cf3 =\cf2  \cf5 'Jason Bourne'\cf2\par
+\tab\tab\cf3 )\cf2\par
+\tab\tab\cf1 SELECT\cf2  \cf3 *\cf2\par
+\tab\tab\tab\cf1 FROM\cf2  BourneCourses\par
+\f1 -\par
+\cf1\f0 WITH\cf2  BourneCourses \cf1 AS \cf3 (\cf2\par
+\tab\cf1 SELECT\cf2  CourseRunID\cf3 ,\cf2  StartDate\par
+\tab\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Trainer \cf1 AS\cf2  T\par
+\tab\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 CourseRun \cf1 AS\cf2  CR\par
+\tab\tab\tab\tab\cf1 ON\cf2  T\cf3 .\cf2 TrainerID \cf3 =\cf2  CR\cf3 .\cf2 TrainerID\par
+\tab\tab\cf1 WHERE\cf2  TrainerName \cf3 =\cf2  \cf5 'Jason Bourne'\cf2\par
+\cf3 )\cf2\par
+\par
+\tab\cf1 SELECT\cf2  D\cf3 .\cf2 DelegateID\cf3 ,\cf2  D\cf3 .\cf2 DelegateName\cf3 ,\cf2  D\cf3 .\cf2 CompanyName\cf3 ,\cf2  JB\cf3 .\cf2 StartDate\par
+\tab\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Delegate \cf1 AS\cf2  D\par
+\tab\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  dbo\cf3 .\cf2 DelegateAttendance \cf1 AS\cf2  DA\par
+\tab\tab\tab\tab\cf1 ON\cf2  D\cf3 .\cf2 DelegateID \cf3 =\cf2  DA\cf3 .\cf2 DelegateID\par
+\tab\tab\tab\cf3 INNER\cf2  \cf3 JOIN\cf2  BourneCourses \cf1 AS\cf2  JB\par
+\tab\tab\tab\tab\cf1 ON\cf2  DA\cf3 .\cf2 CourseRunID \cf3 =\cf2  JB\cf3 .\cf2 CourseRunID\par
+\f1 -\par
+\cf1\f0 SELECT\cf2  \cf3 *\cf2\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 Course\par
+\cf1 WHERE\cf2  VendorID \cf3 =\cf2  2\par
+\f1 -\par
+\cf1\f0 SELECT\cf2  \cf3 *\cf2  \cf1 INTO\cf2  #MicrosoftLocal\par
+\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Course \cf1 WHERE\cf2  VendorID \cf3 =\cf2  2\par
+\cf1 SELECT\cf2  \cf3 *\cf2  \cf1 INTO\cf2  ##MicrosoftGlobal\par
+\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 Course \cf1 WHERE\cf2  VendorID \cf3 =\cf2  2\par
+\cf1 GO\cf2\par
+\cf1 SELECT\cf2  \cf3 *\cf2\par
+\tab\cf1 FROM\cf2  #MicrosoftLocal\par
+\cf1 SELECT\cf2  \cf3 *\cf2\par
+\tab\cf1 FROM\cf2  ##MicrosoftGlobal\par
+\f1 -\par
+\cf6\f0 --Task 1:\cf2\par
+\cf1 SELECT\cf2  ProductID\cf3 ,\cf2  TransferDate\cf3 ,\cf2  TransferAmount\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 BookTransfers\par
+\par
+\cf6 --Task 2:\cf2\par
+\cf1 SELECT\cf2  ProductID\cf3 ,\cf2  \cf4 SUM\cf3 (\cf2 TransferAmount\cf3 )\cf2  \cf1 AS\cf2  Stock\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 BookTransfers\par
+\cf1 GROUP\cf2  \cf1 BY\cf2  ProductID\par
+\par
+\cf6 --Task 3:\cf2\par
+\cf1 SELECT\cf2  ProductID\cf3 ,\cf2  TransferDate\cf3 ,\cf2  TransferAmount\cf3 ,\cf2  \cf4 SUM\cf3 (\cf2 TransferAmount\cf3 )\cf2  \cf1 OVER\cf2\par
+\cf3 (\cf1 PARTITION\cf2  \cf1 BY\cf2  ProductID \cf1 ORDER\cf2  \cf1 BY\cf2  TransferDate\cf3 )\cf2\par
+\cf1 AS\cf2  RunningStock\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 BookTransfers\par
+\f1 -\par
+\cf6\f0 --Task 1b:\cf2\par
+\cf1 SELECT\cf2  \cf3 *,\cf2\par
+\cf4 RANK\cf3 ()\cf2  \cf1 OVER \cf3 (\cf1 ORDER\cf2  \cf1 BY\cf2  NumberDelegates \cf1 DESC\cf3 )\cf2\par
+\tab\cf1 AS\cf2  LeaguePos_Rank\cf3 ,\cf2\par
+\cf4 DENSE_RANK\cf3 ()\cf2  \cf1 OVER \cf3 (\cf1 ORDER\cf2  \cf1 BY\cf2  NumberDelegates \cf1 DESC\cf3 )\cf2\par
+\tab\cf1 AS\cf2  LeaguePos_DenseRank\cf3 ,\cf2\par
+\cf4 ROW_NUMBER\cf3 ()\cf2  \cf1 OVER \cf3 (\cf1 ORDER\cf2  \cf1 BY\cf2  NumberDelegates \cf1 DESC\cf3 )\cf2\par
+\tab\cf1 AS\cf2  LeaguePos_Row\cf3 ,\cf2\par
+\cf4 NTILE\cf3 (\cf2 3\cf3 )\cf2  \cf1 OVER \cf3 (\cf1 ORDER\cf2  \cf1 BY\cf2  NumberDelegates \cf1 DESC\cf3 )\cf2\par
+\tab\cf1 AS\cf2  LeaguePos_Ntile\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 VendorCourseDelegateCount\par
+\cf1 GO\par
+\f1 -\par
+\cf6\f0 --Task 2a:\cf2\par
+\cf1 SELECT\cf2  \cf3 *\cf2\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 VendorCourseDelegateCount\par
+\cf1 GO\cf2\par
+\f1 -\f0\par
+\cf6 --Task 2b:\cf2\par
+\cf1 SELECT\cf2  \cf3 *,\cf2  \cf4 RANK\cf3 ()\cf2  \cf1 OVER \cf3 (\cf1 PARTITION\cf2  \cf1 BY\cf2  Vendorname \cf1 ORDER\cf2  \cf1 BY\cf2  NumberDelegates \cf1 DESC\cf3 )\cf2\par
+\cf1 FROM\cf2  dbo\cf3 .\cf2 VendorCourseDelegateCount\par
+\cf1 GO\cf2\par
+\f1 -\f0\par
+\cf6 --Task 2c:\cf2\par
+\cf6 --Using CTE\cf2\par
+\cf1 WITH\cf2  Ranked_Courses \cf1 AS \cf3 (\cf2\par
+\cf1 SELECT\cf2  \cf3 *,\cf2\par
+\tab\cf4 RANK\cf3 ()\cf2  \cf1 OVER \cf3 (\cf1 PARTITION\cf2  \cf1 BY\cf2  VendorName\par
+\tab\cf1 ORDER\cf2  \cf1 BY\cf2  NumberDELEGATES \cf1 DESC\cf3 )\cf2  \cf1 AS\cf2  LeaguePos\par
+\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 VendorCourseDelegateCount\par
+\cf3 )\cf2\par
+\cf1 SELECT\cf2  VendorName\cf3 ,\cf2  CourseName\cf3 ,\cf2  NumberDelegates\par
+\tab\cf1 FROM\cf2  Ranked_Courses\par
+\tab\cf1 WHERE\cf2  LeaguePos \cf3 =\cf2  1\par
+\tab\cf1 GO\cf2\par
+\f1 -\f0\par
+\cf6 --Using Derived Table\cf2\par
+\cf1 SELECT\cf2  VendorName\cf3 ,\cf2  CourseName\cf3 ,\cf2  NumberDelegates\par
+\cf1 FROM \cf3 (\cf2\par
+\tab\cf1 SELECT\cf2  \cf3 *,\cf2\par
+\tab\cf4 RANK\cf3 ()\cf2  \cf1 OVER \cf3 (\cf1 PARTITION\cf2  \cf1 BY\cf2  VendorName\par
+\tab\cf1 ORDER\cf2  \cf1 BY\cf2  NumberDelegates \cf1 DESC\cf3 )\cf2  \cf1 AS\cf2  LeaguePos\par
+\tab\cf1 FROM\cf2  dbo\cf3 .\cf2 VendorCourseDelegateCount\par
+\cf3 )\cf2  \cf1 AS\cf2  DT\par
+\cf1 WHERE\cf2  LeaguePos \cf3 =\cf2  1\par
+\cf1 GO\cf3\f1\par
+\cf0\f2\fs22\lang9\par
+}
+ 
